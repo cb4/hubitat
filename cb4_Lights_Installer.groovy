@@ -34,7 +34,8 @@ def mainPage() {
             refreshInterval: (state.running == true ? 5 : 0),
             install: true, uninstall: true) {
         section("Wiring inventory") {
-            paragraph "44 lights: brain1=7, brain2=6, brain3=7, brain4=7, brain5=6, brain6=7, brain7=4." + " Wiring room names are translated using the workbook room map."
+            paragraph "44 lights: brain1=7, brain2=6, brain3=7, brain4=7, brain5=6, brain6=7, brain7=4." +
+                    " Wiring room names are translated using the workbook room map."
             input name: "operation", type: "enum", title: "Operation",
                     options: ["preview": "Preview and validate",
                               "install": "Create or update devices",
@@ -42,12 +43,14 @@ def mainPage() {
                     defaultValue: "preview", required: true, submitOnChange: true
             input name: "runInstaller", type: "button",
                     title: "Run Selected Operation"
-            paragraph "The device naming scheme is room_ID-brainN. Lights can be created while a brain is offline "
-            + "by mapping brain controller pinouts to WLED segments, e.g., brain LED1 = WLED Segment 0, etc."
-            + " Existing installer devices are reconfigured and reported. "
-            + "Delete removes all child lights owned by this app. Hubitat doesn't have a "
-            + "way to programmatically assign devices to Rooms; this must be done manually. For "
-            + "troubleshooting, room names appear in labels/logs."
+            String operationHelp = "The device naming scheme is room_ID-brainN. Lights can be created " +
+                    "while a brain is offline " +
+                    "by mapping brain controller pinouts to WLED segments, e.g., brain LED1 = WLED Segment 0, etc." +
+                    " Existing installer devices are reconfigured and reported. " +
+                    "Delete removes all child lights owned by this app. Hubitat doesn't have a " +
+                    "way to programmatically assign devices to Rooms; this must be done manually. For " +
+                    "troubleshooting, room names appear in labels/logs."
+            paragraph operationHelp
             if (state.lastResult) paragraph "Status: ${state.lastResult}"
             if (state.running == true) {
                 paragraph "Progress: ${state.nextIndex ?: 0} / ${state.total ?: 0} complete"
@@ -71,50 +74,72 @@ void appButtonHandler(String buttonName) {
 
 private static List<Map> inventory() {
     // Hubitat names are taken from wiring.xlsx, "Hubitat Room Name Map".
-    return [[brain: 'brain1', ip: '10.0.0.50', lights: [[id: '5.2', room: 'Dining Room', description: 'ceiling middle', led: 'LED1', segment: 0, sheetRow: 114],
-                                                        [id: '2.1', room: 'Kitchen', description: 'west aisle', led: 'LED2', segment: 1, sheetRow: 115],
-                                                        [id: '2.2', room: 'Kitchen', description: 'middle aisle', led: 'LED3', segment: 2, sheetRow: 116],
-                                                        [id: '2.3', room: 'Kitchen', description: 'east aisle', led: 'LED4', segment: 3, sheetRow: 117],
-                                                        [id: '9.1', room: 'Guest Bedroom', description: 'ceiling west', led: 'LED5', segment: 4, sheetRow: 118],
-                                                        [id: '9.2', room: 'Guest Bedroom', description: 'ceiling east', led: 'LED6', segment: 5, sheetRow: 119],
-                                                        [id: '10.1', room: 'Master Bedroom', description: 'window inside curtain', led: 'LED7', segment: 6, sheetRow: 120],]],
-            [brain: 'brain2', ip: '10.0.0.51', lights: [[id: '4.1', room: 'Living Room', description: 'circle north', led: 'LED1', segment: 0, sheetRow: 128],
-                                                        [id: '4.2', room: 'Living Room', description: 'circle east', led: 'LED2', segment: 1, sheetRow: 129],
-                                                        [id: '10.01', room: 'Master Bedroom', description: 'entry', led: 'LED3', segment: 2, sheetRow: 130],
-                                                        [id: '10.02', room: 'Master Bedroom', description: 'walkway', led: 'LED4', segment: 3, sheetRow: 131],
-                                                        [id: '11.3', room: 'Master Bath', description: 'shower', led: 'LED5', segment: 4, sheetRow: 132],
-                                                        [id: '5.1', room: 'Dining Room', description: 'ceiling west', led: 'LED6', segment: 5, sheetRow: 133],]],
-            [brain: 'brain3', ip: '10.0.0.52', lights: [[id: '8.1', room: 'Den', description: 'ceiling north', led: 'LED1', segment: 0, sheetRow: 141],
-                                                        [id: '8.2', room: 'Den', description: 'ceiling east', led: 'LED2', segment: 1, sheetRow: 142],
-                                                        [id: '8.4', room: 'Den', description: 'ceiling west', led: 'LED3', segment: 2, sheetRow: 143],
-                                                        [id: '7.2', room: 'Guest Bath', description: 'shower', led: 'LED4', segment: 3, sheetRow: 144],
-                                                        [id: '6.1', room: 'Hall', description: 'ceiling east', led: 'LED5', segment: 4, sheetRow: 145],
-                                                        [id: '3.1', room: 'Laundry', description: 'hall ceiling', led: 'LED6', segment: 5, sheetRow: 146],
-                                                        [id: '10.13', room: 'Master Bedroom', description: 'S baseboard', led: 'LED7', segment: 6, sheetRow: 147],]],
-            [brain: 'brain4', ip: '10.0.0.53', lights: [[id: '2.5', room: 'Kitchen', description: 'S wall baseboard', led: 'LED1', segment: 0, sheetRow: 155],
-                                                        [id: '2.6', room: 'Kitchen', description: 'broom closet', led: 'LED2', segment: 1, sheetRow: 156],
-                                                        [id: '2.7', room: 'Kitchen', description: 'SE+E+NE island base', led: 'LED3', segment: 2, sheetRow: 157],
-                                                        [id: '2.8', room: 'Kitchen', description: 'SW+W+NW island base', led: 'LED4', segment: 3, sheetRow: 158],
-                                                        [id: '11.5', room: 'Master Bath', description: 'makeup station baseboard', led: 'LED5', segment: 4, sheetRow: 159],
-                                                        [id: '8.3', room: 'Den', description: 'ceiling south', led: 'LED6', segment: 5, sheetRow: 160],
-                                                        [id: '4.3', room: 'Living Room', description: 'circle south', led: 'LED7', segment: 6, sheetRow: 161],]],
-            [brain: 'brain5', ip: '10.0.0.54', lights: [[id: '8.5', room: 'Den', description: 'window inside curtain', led: 'LED1', segment: 0, sheetRow: 169],
-                                                        [id: '8.6', room: 'Den', description: 'window outside curtain', led: 'LED2', segment: 1, sheetRow: 170],
-                                                        [id: '4.5', room: 'Living Room', description: 'window inside curtain', led: 'LED3', segment: 2, sheetRow: 171],
-                                                        [id: '4.6', room: 'Living Room', description: 'window outside curtain', led: 'LED4', segment: 3, sheetRow: 172],
-                                                        [id: '11.4', room: 'Master Bath', description: 'shower niche', led: 'LED5', segment: 4, sheetRow: 173],
-                                                        [id: '11.6', room: 'Master Bath', description: 'vanity baseboard', led: 'LED6', segment: 5, sheetRow: 174],]],
-            [brain: 'brain6', ip: '10.0.0.55', lights: [[id: '13.1', room: 'Balcony', description: 'balcony west', led: 'LED1', segment: 0, sheetRow: 181],
-                                                        [id: '7.3', room: 'Guest Bath', description: 'niche', led: 'LED2', segment: 1, sheetRow: 182],
-                                                        [id: '7.4', room: 'Guest Bath', description: 'baseboard', led: 'LED3', segment: 2, sheetRow: 183],
-                                                        [id: '9.6', room: 'Guest Bedroom', description: 'window inside curtain', led: 'LED4', segment: 3, sheetRow: 184],
-                                                        [id: '9.7', room: 'Guest Bedroom', description: 'window outside curtain', led: 'LED5', segment: 4, sheetRow: 185],
-                                                        [id: '10.11', room: 'Master Bedroom', description: 'window outside curtain', led: 'LED6', segment: 5, sheetRow: 186],
-                                                        [id: '10.12', room: 'Master Bedroom', description: 'N baseboard', led: 'LED7', segment: 6, sheetRow: 187],]],
-            [brain: 'brain7', ip: '10.0.0.56', lights: [[id: '99.1', room: 'test', description: 'test light 1', led: 'LED1', segment: 0, sheetRow: 195],
-                                                        [id: '99.2', room: 'test', description: 'test light 2', led: 'LED2', segment: 1, sheetRow: 196],
-                                                        [id: '99.3', room: 'test', description: 'test light 3', led: 'LED3', segment: 2, sheetRow: 197],
-                                                        [id: '99.4', room: 'test', description: 'test light 4', led: 'LED4', segment: 3, sheetRow: 198],]],]
+    return [
+        [brain: 'brain1', ip: '10.0.0.50', lights: [
+            light('5.2', 'Dining Room', 'ceiling middle', 'LED1', 0, 114),
+            light('2.1', 'Kitchen', 'west aisle', 'LED2', 1, 115),
+            light('2.2', 'Kitchen', 'middle aisle', 'LED3', 2, 116),
+            light('2.3', 'Kitchen', 'east aisle', 'LED4', 3, 117),
+            light('9.1', 'Guest Bedroom', 'ceiling west', 'LED5', 4, 118),
+            light('9.2', 'Guest Bedroom', 'ceiling east', 'LED6', 5, 119),
+            light('10.10', 'Master Bedroom', 'window inside curtain', 'LED7', 6, 120)
+        ]],
+        [brain: 'brain2', ip: '10.0.0.51', lights: [
+            light('4.1', 'Living Room', 'circle north', 'LED1', 0, 128),
+            light('4.2', 'Living Room', 'circle east', 'LED2', 1, 129),
+            light('10.01', 'Master Bedroom', 'entry', 'LED3', 2, 130),
+            light('10.02', 'Master Bedroom', 'walkway', 'LED4', 3, 131),
+            light('11.3', 'Master Bath', 'shower', 'LED5', 4, 132),
+            light('5.1', 'Dining Room', 'ceiling west', 'LED6', 5, 133)
+        ]],
+        [brain: 'brain3', ip: '10.0.0.52', lights: [
+            light('8.1', 'Den', 'ceiling north', 'LED1', 0, 141),
+            light('8.2', 'Den', 'ceiling east', 'LED2', 1, 142),
+            light('8.4', 'Den', 'ceiling west', 'LED3', 2, 143),
+            light('7.2', 'Guest Bath', 'shower', 'LED4', 3, 144),
+            light('6.1', 'Hall', 'ceiling east', 'LED5', 4, 145),
+            light('3.1', 'Laundry', 'hall ceiling', 'LED6', 5, 146),
+            light('10.13', 'Master Bedroom', 'S baseboard', 'LED7', 6, 147)
+        ]],
+        [brain: 'brain4', ip: '10.0.0.53', lights: [
+            light('2.5', 'Kitchen', 'S wall baseboard', 'LED1', 0, 155),
+            light('2.6', 'Kitchen', 'broom closet', 'LED2', 1, 156),
+            light('2.7', 'Kitchen', 'SE+E+NE island base', 'LED3', 2, 157),
+            light('2.8', 'Kitchen', 'SW+W+NW island base', 'LED4', 3, 158),
+            light('11.5', 'Master Bath', 'makeup station baseboard', 'LED5', 4, 159),
+            light('8.3', 'Den', 'ceiling south', 'LED6', 5, 160),
+            light('4.3', 'Living Room', 'circle south', 'LED7', 6, 161)
+        ]],
+        [brain: 'brain5', ip: '10.0.0.54', lights: [
+            light('8.5', 'Den', 'window inside curtain', 'LED1', 0, 169),
+            light('8.6', 'Den', 'window outside curtain', 'LED2', 1, 170),
+            light('4.5', 'Living Room', 'window inside curtain', 'LED3', 2, 171),
+            light('4.6', 'Living Room', 'window outside curtain', 'LED4', 3, 172),
+            light('11.4', 'Master Bath', 'shower niche', 'LED5', 4, 173),
+            light('11.6', 'Master Bath', 'vanity baseboard', 'LED6', 5, 174)
+        ]],
+        [brain: 'brain6', ip: '10.0.0.55', lights: [
+            light('13.1', 'Balcony', 'balcony west', 'LED1', 0, 181),
+            light('7.3', 'Guest Bath', 'niche', 'LED2', 1, 182),
+            light('7.4', 'Guest Bath', 'baseboard', 'LED3', 2, 183),
+            light('9.6', 'Guest Bedroom', 'window inside curtain', 'LED4', 3, 184),
+            light('9.7', 'Guest Bedroom', 'window outside curtain', 'LED5', 4, 185),
+            light('10.11', 'Master Bedroom', 'window outside curtain', 'LED6', 5, 186),
+            light('10.12', 'Master Bedroom', 'N baseboard', 'LED7', 6, 187)
+        ]],
+        [brain: 'brain7', ip: '10.0.0.56', lights: [
+            light('99.1', 'test', 'test light 1', 'LED1', 0, 195),
+            light('99.2', 'test', 'test light 2', 'LED2', 1, 196),
+            light('99.3', 'test', 'test light 3', 'LED3', 2, 197),
+            light('99.4', 'test', 'test light 4', 'LED4', 3, 198)
+        ]]
+    ]
+}
+
+private static Map light(String id, String room, String description, String led,
+                         int segment, int sheetRow) {
+    return [id: id, room: room, description: description,
+            led: led, segment: segment, sheetRow: sheetRow]
 }
 
 private List<Map> buildPlan() {
@@ -147,7 +172,8 @@ private List<Map> buildPlan() {
             int calculatedSegment = ledMatch.group(1).toInteger() - 1
             int segmentId = light.segment as Integer
             if (segmentId != calculatedSegment) {
-                problems.add("${lightId}: embedded segment ${segmentId} does not match ${light.led} (expected ${calculatedSegment})")
+                problems.add("${lightId}: embedded segment ${segmentId} does not match " +
+                        "${light.led} (expected ${calculatedSegment})")
                 return
             }
             if (!usedSegments.add(segmentId)) {
@@ -181,7 +207,8 @@ void runInstaller() {
     state.tally = [created: 0, updated: 0, deleted: 0, failed: 0]
 
     if (settings.operation == "delete") {
-        state.deletePending = (getChildDevices() ?: []).collect { child -> [dni: child.deviceNetworkId, label: child.label ?: child.name]
+        state.deletePending = (getChildDevices() ?: []).collect { child ->
+            [dni: child.deviceNetworkId, label: child.label ?: child.name]
         }
         state.total = state.deletePending.size()
         if (state.total == 0) {
@@ -197,7 +224,9 @@ void runInstaller() {
     List<Map> targets = buildPlan()
     Map counts = targets.countBy { it.brain }
     log.info "cb4_lights_installer: prepared ${targets.size()} / 44 lights. By brain: ${counts}"
-    targets.each { t -> log.info "${t.lightId} | ${t.room} | ${t.description} | ${t.brain}" + " ${t.ip} | ${t.led} -> WLED segment ${t.segment} (${t.mapping})"
+    targets.each { t ->
+        log.info "${t.lightId} | ${t.room} | ${t.description} | ${t.brain} " +
+                "${t.ip} | ${t.led} -> WLED segment ${t.segment} (${t.mapping})"
     }
     if (settings.operation != "install") {
         state.lastResult = "Preview ready: ${targets.size()} of 44 lights. By brain: ${counts}."
@@ -251,7 +280,8 @@ void installNext() {
     if (index >= pending.size()) {
         Map tally = state.tally ?: [:]
         state.running = false
-        state.lastResult = "Finished: created ${tally.created ?: 0}, " + "updated ${tally.updated ?: 0}, failed ${tally.failed ?: 0}."
+        state.lastResult = "Finished: created ${tally.created ?: 0}, " +
+                "updated ${tally.updated ?: 0}, failed ${tally.failed ?: 0}."
         log.info "cb4_lights_installer: ${state.lastResult}"
         state.pending = []
         return
@@ -293,6 +323,8 @@ void installNext() {
     }
     state.tally = tally
     state.nextIndex = index + 1
-    state.lastResult = "Installing ${index + 1} / ${pending.size()}: ${itemStatus}. " + "Created ${tally.created ?: 0}, updated ${tally.updated ?: 0}, failed ${tally.failed ?: 0}."
+    state.lastResult = "Installing ${index + 1} / ${pending.size()}: ${itemStatus}. " +
+            "Created ${tally.created ?: 0}, updated ${tally.updated ?: 0}, " +
+            "failed ${tally.failed ?: 0}."
     runIn(8, "installNext")
 }
