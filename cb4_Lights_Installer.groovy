@@ -27,6 +27,8 @@ preferences {
     page(name: "mainPage")
 }
 
+// Hubitat resolves this page by the name declared in preferences.
+@SuppressWarnings('GroovyUnusedDeclaration')
 def mainPage() {
     dynamicPage(name: "mainPage", title: "cb4_lights_installer",
             refreshInterval: (state.running == true ? 5 : 0),
@@ -54,15 +56,20 @@ def mainPage() {
     }
 }
 
+// Hubitat invokes these lifecycle callbacks by convention.
+@SuppressWarnings('GroovyUnusedDeclaration')
 def installed() { log.info "cb4_lights_installer installed. Run Preview and validate." }
 
+@SuppressWarnings('GroovyUnusedDeclaration')
 def updated() { log.info "cb4_lights_installer settings saved." }
 
+// Hubitat dispatches app button events to this handler by convention.
+@SuppressWarnings('GroovyUnusedDeclaration')
 void appButtonHandler(String buttonName) {
     if (buttonName == "runInstaller") runInstaller()
 }
 
-private List<Map> inventory() {
+private static List<Map> inventory() {
     // Hubitat names are taken from wiring.xlsx, "Hubitat Room Name Map".
     return [[brain: 'brain1', ip: '10.0.0.50', lights: [[id: '5.2', room: 'Dining Room', description: 'ceiling middle', led: 'LED1', segment: 0, sheetRow: 114],
                                                         [id: '2.1', room: 'Kitchen', description: 'west aisle', led: 'LED2', segment: 1, sheetRow: 115],
@@ -125,26 +132,26 @@ private List<Map> buildPlan() {
             String lightId = light.id as String
             String dni = "${lightId}-${cfg.brain}"
             if (!lightId?.trim()) {
-                problems << "${cfg.brain}: blank workbook light ID"
+                problems.add("${cfg.brain}: blank workbook light ID")
                 return
             }
             if (!usedDeviceIds.add(dni)) {
-                problems << "${lightId}: duplicate light ID in wiring"
+                problems.add("${lightId}: duplicate light ID in wiring")
                 return
             }
             def ledMatch = (light.led as String) =~ /^LED([1-9]\d*)$/
             if (!ledMatch.matches()) {
-                problems << "${lightId}: invalid workbook Data value '${light.led}'"
+                problems.add("${lightId}: invalid workbook Data value '${light.led}'")
                 return
             }
-            int calculatedSegment = ledMatch[0][1].toInteger() - 1
+            int calculatedSegment = ledMatch.group(1).toInteger() - 1
             int segmentId = light.segment as Integer
             if (segmentId != calculatedSegment) {
-                problems << "${lightId}: embedded segment ${segmentId} does not match ${light.led} (expected ${calculatedSegment})"
+                problems.add("${lightId}: embedded segment ${segmentId} does not match ${light.led} (expected ${calculatedSegment})")
                 return
             }
             if (!usedSegments.add(segmentId)) {
-                problems << "${lightId}: segment ${segmentId} assigned twice on ${cfg.brain}"
+                problems.add("${lightId}: segment ${segmentId} assigned twice on ${cfg.brain}")
                 return
             }
             thisBrain << [dni        : dni, brain: cfg.brain, ip: cfg.ip,
@@ -162,6 +169,7 @@ private List<Map> buildPlan() {
     return targets
 }
 
+// Invoked from appButtonHandler.
 void runInstaller() {
     unschedule("installNext")
     unschedule("deleteNext")
@@ -206,8 +214,10 @@ void runInstaller() {
     runIn(1, "installNext")
 }
 
+// Hubitat invokes scheduled callbacks registered by runIn using their method names.
+@SuppressWarnings('GroovyUnusedDeclaration')
 void deleteNext() {
-    List<Map> pending = state.deletePending ?: []
+    List<Map> pending = (state.deletePending ?: []) as List<Map>
     int index = (state.nextIndex ?: 0) as Integer
     if (index >= pending.size()) {
         Map tally = state.tally ?: [:]
@@ -234,8 +244,9 @@ void deleteNext() {
     runIn(1, "deleteNext")
 }
 
+@SuppressWarnings('GroovyUnusedDeclaration')
 void installNext() {
-    List<Map> pending = state.pending ?: []
+    List<Map> pending = (state.pending ?: []) as List<Map>
     int index = (state.nextIndex ?: 0) as Integer
     if (index >= pending.size()) {
         Map tally = state.tally ?: [:]
@@ -247,7 +258,7 @@ void installNext() {
     }
     Map target = pending[index]
     Map tally = state.tally ?: [created: 0, updated: 0, failed: 0]
-    String itemStatus = ""
+    String itemStatus
     try {
         String deviceName = "${target.lightId}-${target.brain}"
         String label = "${target.lightId}-${target.brain}"
